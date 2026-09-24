@@ -205,6 +205,14 @@
     </div>
 
     <div class="setting">
+      <label>タッチする順番</label>
+      <div class="seg two">
+        <input id="directionUp" name="direction" type="radio" value="up" checked><label for="directionUp">1 → 大きい数</label>
+        <input id="directionDown" name="direction" type="radio" value="down"><label for="directionDown">大きい数 → 1</label>
+      </div>
+    </div>
+
+    <div class="setting">
       <label>配色</label>
       <div class="seg two">
         <input id="themeLight" name="theme" type="radio" value="light" checked><label for="themeLight">白地・黒文字</label>
@@ -237,7 +245,7 @@
       </div>
     </div>
 
-    <div class="note">タイム測定を「する」にした場合も、プレイ中はタイムの枠を表示しません。①を押した瞬間に内部で計測を始め、最後の数字を押したときに結果を表示します。</div>
+    <div class="note">タイム測定を「する」にした場合、最初に押す数字から計測を始め、最後の数字を押したときに結果を表示します。「1 → 大きい数」と「大きい数 → 1」のどちらでも遊べます。</div>
   </div>
   <div class="dialog-actions">
     <button class="btn" id="cancelSettings">キャンセル</button>
@@ -282,6 +290,7 @@
     const saved = safeParse(STORAGE_SETTINGS, null);
     return {
       count: [10,15,20,25,30].includes(saved?.count) ? saved.count : 20,
+      direction: ['up','down'].includes(saved?.direction) ? saved.direction : 'up',
       theme: ['light','dark'].includes(saved?.theme) ? saved.theme : 'light',
       sizeMode: ['same','random'].includes(saved?.sizeMode) ? saved.sizeMode : 'same',
       layoutMode: ['random','grid','worksheet'].includes(saved?.layoutMode) ? saved.layoutMode : 'random',
@@ -296,6 +305,7 @@
   function readSettings(){
     return {
       count: Number(document.getElementById('count').value),
+      direction: document.querySelector('input[name="direction"]:checked').value,
       theme: document.querySelector('input[name="theme"]:checked').value,
       sizeMode: document.querySelector('input[name="sizeMode"]:checked').value,
       layoutMode: document.querySelector('input[name="layoutMode"]:checked').value,
@@ -305,6 +315,7 @@
 
   function fillSettingsForm(){
     document.getElementById('count').value = settings.count;
+    document.querySelector(`input[name="direction"][value="${settings.direction}"]`).checked = true;
     document.querySelector(`input[name="theme"][value="${settings.theme}"]`).checked = true;
     document.querySelector(`input[name="sizeMode"][value="${settings.sizeMode}"]`).checked = true;
     document.querySelector(`input[name="layoutMode"][value="${settings.layoutMode}"]`).checked = true;
@@ -362,7 +373,7 @@
       return `
         <div class="record-item">
           <div>
-            <div class="record-main">1〜${r.count} / ${formatLayout(r.layoutMode)}</div>
+            <div class="record-main">${(r.direction || 'up') === 'down' ? `${r.count}→1` : `1→${r.count}`} / ${formatLayout(r.layoutMode)}</div>
             <div class="record-meta">${formatSize(r.sizeMode)} / ${r.theme === 'light' ? '白地・黒文字' : '黒地・白文字'}</div>
           </div>
           <div class="record-meta">${dateText}</div>
@@ -431,6 +442,7 @@
     }
     saveRecord({
       count: settings.count,
+      direction: settings.direction,
       theme: settings.theme,
       sizeMode: settings.sizeMode,
       layoutMode: settings.layoutMode,
@@ -443,8 +455,11 @@
   }
 
   function updateStatus(){
-    nextValue.textContent = next <= settings.count ? next : '✓';
-    remainValue.textContent = Math.max(0, settings.count - next + 1);
+    const inRange = next >= 1 && next <= settings.count;
+    nextValue.textContent = inRange ? next : '✓';
+    remainValue.textContent = inRange
+      ? (settings.direction === 'down' ? next : settings.count - next + 1)
+      : '0';
   }
 
   function makeNumber(value,x,y,size){
@@ -466,6 +481,7 @@
 
   function handleTap(el,value){
     if (finished) return;
+
     if (value !== next) {
       wrongCount++;
       playWrongSound();
@@ -475,14 +491,23 @@
       if(wrongCount >= 5) failGame();
       return;
     }
+
     playCorrectSound();
-    if (value === 1) startTimer();
+
+    const firstTarget = settings.direction === 'down' ? settings.count : 1;
+    const finalTarget = settings.direction === 'down' ? 1 : settings.count;
+
+    if (value === firstTarget) startTimer();
+
     el.blur();
     el.style.display = 'none';
     el.remove();
-    next++;
+
+    const cleared = value === finalTarget;
+    next += settings.direction === 'down' ? -1 : 1;
     updateStatus();
-    if (value === settings.count) finishGame();
+
+    if (cleared) finishGame();
   }
 
   function worksheetLayout(count,w,h){
@@ -582,7 +607,7 @@
 
   function newGame(){
     stopTimer();
-    next = 1;
+    next = settings.direction === 'down' ? settings.count : 1;
     elapsed = 0;
     wrongCount = 0;
     finished = false;
