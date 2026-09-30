@@ -15,17 +15,25 @@
     --shadow:0 10px 30px rgba(0,0,0,.08);
   }
   *{box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
   body{
     margin:0;
     font-family: system-ui,-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
     background:var(--bg);
     color:var(--text);
-    min-height:100vh;
   }
-  .app{max-width:1100px;margin:0 auto;padding:16px}
-  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-  h1{font-size:clamp(24px,5vw,40px);margin:0;font-weight:800;letter-spacing:.03em}
-  .sub{font-size:14px;color:var(--muted);margin-top:2px}
+  .app{
+    max-width:1100px;
+    height:100dvh;
+    min-height:0;
+    margin:0 auto;
+    padding:10px 16px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;flex:0 0 auto}
+  h1{font-size:clamp(22px,4vw,36px);margin:0;font-weight:800;letter-spacing:.03em}
   .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   button,select,input{font:inherit}
   button{cursor:pointer}
@@ -48,8 +56,9 @@
     display:grid;
     grid-template-columns:1fr 1fr 1.25fr;
     gap:8px;
-    margin-bottom:12px;
+    margin-bottom:8px;
     box-shadow:var(--shadow);
+    flex:0 0 auto;
   }
   .status-item{text-align:center}
   .status-label{font-size:12px;color:var(--muted)}
@@ -63,11 +72,13 @@
     overflow:hidden;
     box-shadow:var(--shadow);
     position:relative;
+    flex:1 1 auto;
+    min-height:0;
   }
   .board{
     width:100%;
-    height:min(72vh,720px);
-    min-height:420px;
+    height:100%;
+    min-height:0;
     position:relative;
     overflow:hidden;
     touch-action:manipulation;
@@ -96,17 +107,10 @@
   .number.done{opacity:0;pointer-events:none;transform:scale(.5)}
   .number.wrong{animation:shake .18s linear 2}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-  .record-wrap{
-    margin-top:12px;
-    background:var(--panel);
-    border:2px solid var(--border);
-    border-radius:16px;
-    padding:12px 14px;
-    box-shadow:var(--shadow);
-  }
-  .record-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .record-title{font-size:18px;font-weight:800}
-  .record-sub{font-size:13px;color:var(--muted)}
+  .record-sub{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .records-dialog{width:min(92vw,760px);max-height:84dvh}
+  .records-body{padding:14px 18px;overflow:auto;max-height:60dvh}
+  .records-actions{border-top:1px solid #ddd;padding-top:14px}
   .record-list{display:grid;gap:8px}
   .record-empty{font-size:14px;color:var(--muted);padding:6px 2px}
   .record-item{
@@ -119,36 +123,78 @@
   .record-time{text-align:right;font-weight:800;font-size:16px}
   .record-time.small{font-size:14px}
   dialog{
-    width:min(92vw,620px);border:2px solid #111;border-radius:18px;padding:0;box-shadow:0 20px 80px rgba(0,0,0,.3)
+    width:min(92vw,620px);
+    max-height:90dvh;
+    border:2px solid #111;
+    border-radius:18px;
+    padding:0;
+    box-shadow:0 20px 80px rgba(0,0,0,.3);
+    overflow:hidden;
+    background:#fff;
+    color:#111;
+    color-scheme:light;
   }
   dialog::backdrop{background:rgba(0,0,0,.45)}
-  .dialog-head{padding:16px 18px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center}
+  .dialog-head{padding:16px 18px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;background:#fff;color:#111}
   .dialog-head h2{margin:0;font-size:22px}
-  .close{border:none;background:transparent;font-size:28px;line-height:1}
-  .settings{padding:16px 18px;display:grid;gap:16px}
+  .close{border:none;background:transparent;color:inherit;font-size:28px;line-height:1}
+  .settings{padding:16px 18px;display:grid;gap:16px;overflow:auto;max-height:68dvh;background:#fff;color:#111}
   .setting{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;align-items:center}
   .setting label{font-weight:700}
-  .setting select,.setting input[type="number"]{width:100%;padding:10px;border:2px solid #bbb;border-radius:10px;background:#fff}
-  .seg{display:grid;border:2px solid #bbb;border-radius:10px;overflow:hidden}
+  .setting select,.setting input[type="number"]{width:100%;padding:10px;border:2px solid #9aa0a6;border-radius:10px;background:#fff;color:#111;color-scheme:light}
+  .seg{display:grid;border:2px solid #9aa0a6;border-radius:10px;overflow:hidden;background:#fff;position:relative}
   .seg.two{grid-template-columns:repeat(2,1fr)}
   .seg.three{grid-template-columns:repeat(3,1fr)}
-  .seg input{display:none}
-  .seg label{padding:10px 8px;text-align:center;font-weight:700;cursor:pointer;background:#fff}
-  .seg input:checked + label{background:#111;color:#fff}
-  .dialog-actions{display:flex;gap:10px;justify-content:flex-end;padding:0 18px 18px}
+  .seg input{
+    position:absolute;
+    opacity:0;
+    width:1px;
+    height:1px;
+    pointer-events:none;
+  }
+  .seg label{
+    padding:10px 8px;
+    text-align:center;
+    font-weight:700;
+    cursor:pointer;
+    background:#fff;
+    color:#111;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:manipulation;
+    border-right:1px solid #d0d0d0;
+  }
+  .seg label:last-child{border-right:none}
+  .seg input:checked + label{
+    background:#2f6fed;
+    color:#fff;
+    box-shadow:inset 0 0 0 2px #174bb8;
+  }
+  .seg label:active{filter:brightness(.96)}
+  .dialog-actions{display:flex;gap:10px;justify-content:flex-end;padding:0 18px 18px;background:#fff;color:#111}
   .note{font-size:13px;color:#666;line-height:1.6}
   @media (max-width:680px){
-    .app{padding:10px}
-    .header{align-items:flex-start}
+    .app{padding:8px 10px}
+    .header{align-items:center;margin-bottom:6px}
     .top-actions{gap:6px}
     .btn{padding:9px 12px;border-radius:10px}
     .status{padding:8px 10px;grid-template-columns:.9fr .9fr 1.35fr}
     #resultValue{font-size:clamp(13px,3.4vw,18px)}
     #resultValue.fail{font-size:clamp(10px,2.6vw,14px)}
-    .board{height:68vh;min-height:390px}
+    .board{height:100%;min-height:0}
     .setting{grid-template-columns:1fr}
     .record-item{grid-template-columns:1fr;gap:4px}
     .record-time{text-align:left}
+  }
+
+  @media (max-height:700px){
+    .app{padding-top:6px;padding-bottom:6px}
+    .header{margin-bottom:6px}
+    h1{font-size:clamp(20px,3vw,30px)}
+    .btn{padding:7px 11px;border-radius:9px}
+    .status{padding:6px 10px;margin-bottom:6px}
+    .status-label{font-size:11px}
+    .status-value{font-size:clamp(17px,3vw,25px)}
   }
 </style>
 </head>
@@ -157,10 +203,10 @@
   <div class="header">
     <div>
       <h1>ナンバータッチ</h1>
-      <div class="sub">1から順番にタッチしよう</div>
     </div>
     <div class="top-actions">
       <button class="btn" id="settingsBtn">設定</button>
+      <button class="btn" id="recordsBtn">クリア記録</button>
       <button class="btn primary" id="newGameBtn">新しく始める</button>
     </div>
   </div>
@@ -175,17 +221,23 @@
     <main class="board light" id="board" aria-label="ナンバータッチの盤面"></main>
   </div>
 
-  <section class="record-wrap" aria-live="polite">
-    <div class="record-head">
-      <div>
-        <div class="record-title">クリア記録</div>
-        <div class="record-sub">このブラウザに最新20件まで保存します</div>
-      </div>
-      <button class="btn" id="clearRecordsBtn">記録を消す</button>
-    </div>
-    <div class="record-list" id="recordList"></div>
-  </section>
 </div>
+
+
+<dialog id="recordsDialog" class="records-dialog">
+  <div class="dialog-head">
+    <h2>クリア記録</h2>
+    <button class="close" id="closeRecordsDialog" aria-label="閉じる">×</button>
+  </div>
+  <div class="records-body">
+    <div class="record-sub">このブラウザに最新20件まで保存します</div>
+    <div class="record-list" id="recordList"></div>
+  </div>
+  <div class="dialog-actions records-actions">
+    <button class="btn" id="clearRecordsBtn">記録を消す</button>
+    <button class="btn primary" id="closeRecordsBottom">閉じる</button>
+  </div>
+</dialog>
 
 <dialog id="settingsDialog">
   <div class="dialog-head">
@@ -230,10 +282,9 @@
 
     <div class="setting">
       <label>並べ方</label>
-      <div class="seg three">
+      <div class="seg two">
         <input id="layoutRandom" name="layoutMode" type="radio" value="random" checked><label for="layoutRandom">バラバラ</label>
         <input id="layoutGrid" name="layoutMode" type="radio" value="grid"><label for="layoutGrid">列で並べる</label>
-        <input id="layoutWorksheet" name="layoutMode" type="radio" value="worksheet"><label for="layoutWorksheet">ワークシート</label>
       </div>
     </div>
 
@@ -260,6 +311,7 @@
   const resultValue = document.getElementById('resultValue');
   const remainValue = document.getElementById('remainValue');
   const dialog = document.getElementById('settingsDialog');
+  const recordsDialog = document.getElementById('recordsDialog');
   const recordList = document.getElementById('recordList');
 
   const STORAGE_SETTINGS = 'numbertouch_settings_v2';
@@ -293,7 +345,7 @@
       direction: ['up','down'].includes(saved?.direction) ? saved.direction : 'up',
       theme: ['light','dark'].includes(saved?.theme) ? saved.theme : 'light',
       sizeMode: ['same','random'].includes(saved?.sizeMode) ? saved.sizeMode : 'same',
-      layoutMode: ['random','grid','worksheet'].includes(saved?.layoutMode) ? saved.layoutMode : 'random',
+      layoutMode: ['random','grid'].includes(saved?.layoutMode) ? saved.layoutMode : 'random',
       timer: typeof saved?.timer === 'boolean' ? saved.timer : true
     };
   }
@@ -342,7 +394,7 @@
   }
 
   function formatLayout(mode){
-    return mode === 'random' ? 'バラバラ' : mode === 'grid' ? '列で並べる' : 'ワークシート';
+    return mode === 'random' ? 'バラバラ' : '列で並べる';
   }
 
   function formatSize(mode){
@@ -510,31 +562,6 @@
     if (cleared) finishGame();
   }
 
-  function worksheetLayout(count,w,h){
-    const cols = count <= 12 ? 6 : count <= 20 ? 7 : 6;
-    const rows = Math.ceil(count / cols);
-    const sidePad = Math.max(14, w * 0.02);
-    const topPad = Math.max(18, h * 0.05);
-    const gapX = clamp((w - sidePad * 2) / (cols * 5.2), 10, 22);
-    const gapY = clamp((h - topPad * 2) / (rows * 8), 10, 26);
-    const cellW = (w - sidePad * 2 - gapX * (cols - 1)) / cols;
-    const cellH = (h - topPad * 2 - gapY * (rows - 1)) / rows;
-    const size = clamp(Math.min(cellW, cellH) * 0.98, 48, 112);
-    const positions = [];
-    for(let i=0;i<count;i++){
-      const c = i % cols;
-      const r = Math.floor(i / cols);
-      const x = sidePad + c * (cellW + gapX) + (cellW - size) / 2;
-      const y = topPad + r * (cellH + gapY) + (cellH - size) / 2;
-      positions.push({x,y,size});
-    }
-    for(let i=positions.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [positions[i],positions[j]] = [positions[j],positions[i]];
-    }
-    return positions;
-  }
-
   function gridLayout(count,w,h){
     const aspect = w / h;
     let cols = Math.ceil(Math.sqrt(count * aspect));
@@ -622,9 +649,7 @@
     requestAnimationFrame(() => {
       const w = board.clientWidth, h = board.clientHeight;
       let pos;
-      if(settings.layoutMode === 'worksheet'){
-        pos = worksheetLayout(settings.count,w,h);
-      } else if(settings.layoutMode === 'grid'){
+      if(settings.layoutMode === 'grid'){
         pos = gridLayout(settings.count,w,h);
         for(let i=pos.length-1;i>0;i--){
           const j=Math.floor(Math.random()*(i+1));
@@ -637,7 +662,7 @@
       for(let i=1;i<=settings.count;i++){
         const p = pos[i-1];
         let s = p.size;
-        if(settings.sizeMode === 'random' && settings.layoutMode !== 'random'){
+        if(settings.sizeMode === 'random' && settings.layoutMode === 'grid'){
           s = clamp(p.size * (0.62 + Math.random() * 0.72), 40, p.size * 1.16);
         }
         board.appendChild(makeNumber(i, p.x + (p.size - s) / 2, p.y + (p.size - s) / 2, s));
@@ -646,6 +671,9 @@
   }
 
   document.getElementById('settingsBtn').addEventListener('click', () => { fillSettingsForm(); dialog.showModal(); });
+  document.getElementById('recordsBtn').addEventListener('click', () => { renderRecords(); recordsDialog.showModal(); });
+  document.getElementById('closeRecordsDialog').addEventListener('click', () => recordsDialog.close());
+  document.getElementById('closeRecordsBottom').addEventListener('click', () => recordsDialog.close());
   document.getElementById('newGameBtn').addEventListener('click', newGame);
   document.getElementById('closeDialog').addEventListener('click', () => dialog.close());
   document.getElementById('cancelSettings').addEventListener('click', () => dialog.close());
@@ -672,7 +700,9 @@
       btn.disabled = false;
     }, 1000);
   });
-  window.addEventListener('resize', () => { if(!finished) newGame(); });
+  // 画面サイズの変化ではゲームを作り直さない。
+  // モバイル/Chromebookではアドレスバー表示やソフトキーボード等でも resize が発生するため、
+  // プレイ途中の突然のリセットを防ぐ。
 
   renderRecords();
   fillSettingsForm();
@@ -681,3 +711,4 @@
 </script>
 </body>
 </html>
+
